@@ -59,6 +59,8 @@ fn do_file (file: &mut Read, label: &String) -> (u32, u32, u32) {
     }
   }
 
+  if in_word { words += 1 }
+
   println!("{:8} {:7} {:7} {}", lines, words, bytes, &label);
   return (lines, words, bytes);
 }
