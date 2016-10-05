@@ -27,14 +27,14 @@ fn main() {
   } else {
     let stdin = io::stdin();
     let mut stdin_reader = stdin.lock();
-    let (lines, words, bytes) = do_file(&mut stdin_reader);
+    let (lines, words, bytes) = do_file(&mut stdin_reader, &String::from("stdin"));
     println!("{:8} {:7} {:7}", lines, words, bytes);
   }
 
   return ();
 }
 
-fn do_file (file: &mut Read) -> (u32, u32, u32) {
+fn do_file (file: &mut Read, label: &String) -> (u32, u32, u32) {
   let mut buf = [ 0; 4096 ];
 
   let mut lines = 0;
@@ -59,6 +59,7 @@ fn do_file (file: &mut Read) -> (u32, u32, u32) {
     }
   }
 
+  println!("{:8} {:7} {:7} {}", lines, words, bytes, &label);
   return (lines, words, bytes);
 }
 
@@ -66,9 +67,8 @@ fn do_filename (filename: String) -> (u32, u32, u32) {
   let openres = File::open(&filename);
 
   if let Ok(mut file) = openres {
-    let (lines, words, bytes) = do_file(&mut file);
+    let (lines, words, bytes) = do_file(&mut file, &filename);
 
-    println!("{:8} {:7} {:7} {}", lines, words, bytes, &filename);
     return (lines, words, bytes);
   } else {
     match openres.err() {
