@@ -2,5 +2,5 @@ execs = cp wc
 
 all: $(execs)
 
-$(execs): %: %.rs
-	rustc $@.rs
+$(execs): %: src/%.rs
+	rustc src/$@.rs
