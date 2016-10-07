@@ -26,6 +26,10 @@ fn main() {
   return ();
 }
 
+fn is_tabstop (linepos: &usize) -> bool {
+  return linepos % 8 == 0;
+}
+
 fn do_file (file: &mut File) {
   let mut inbuf  = [ 0u8; 4096 ];
   let mut outbuf = [ 0u8; 4096 ];
@@ -54,7 +58,7 @@ fn do_file (file: &mut File) {
       if b == &b'\t' { // literal tab <	>
         outbuf[outpos] = b' ';
         outpos += 1;
-        while outpos % 8 != 0 {
+        while ! is_tabstop(&outpos) {
           outbuf[outpos] = b' ';
           outpos += 1;
         }
