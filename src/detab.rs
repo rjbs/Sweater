@@ -1,4 +1,5 @@
 use std::env;
+use std::io;
 use std::io::prelude::*;
 use std::fs::File;
 
@@ -34,7 +35,8 @@ fn do_file (file: &mut File) {
   let mut inbuf  = [ 0u8; 4096 ];
   let mut outbuf = [ 0u8; 4096 ];
 
-  let mut outfile = File::create("output").unwrap();
+  let output = io::stdout();
+  let mut handle = output.lock();
 
   let mut outpos  = 0;
 
@@ -51,7 +53,7 @@ fn do_file (file: &mut File) {
 
     for b in &inbuf[0 .. len+1] {
       if outpos > 2048 {
-        outfile.write(&outbuf[ 0 .. outpos-1 ]).unwrap();
+        handle.write(&outbuf[ 0 .. outpos-1 ]).unwrap();
         outpos = 0;
       }
 
@@ -79,8 +81,8 @@ fn do_file (file: &mut File) {
   }
 
   if outpos > 0 {
-    outfile.write(&outbuf[ 0 .. outpos-1 ]).unwrap();
+    handle.write(&outbuf[ 0 .. outpos-1 ]).unwrap();
   }
 
-  outfile.flush().unwrap();
+  handle.flush().unwrap();
 }
