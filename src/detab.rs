@@ -75,7 +75,6 @@ fn do_file (file: &mut File) {
 
       outbuf[outpos] = *b;
       outpos  += 1;
-      println!(" {} --> {}", linepos, b);
     }
   }
 
