@@ -58,9 +58,11 @@ fn do_file (file: &mut File) {
       if b == &b'\t' { // literal tab <	>
         outbuf[outpos] = b' ';
         outpos += 1;
-        while ! is_tabstop(&outpos) {
+        linepos += 1;
+        while ! is_tabstop(&linepos) {
           outbuf[outpos] = b' ';
           outpos += 1;
+          linepos += 1;
         }
         continue;
       }
