@@ -1,4 +1,4 @@
-execs = cp wc
+execs = cp wc detab
 
 all: $(execs)
 
