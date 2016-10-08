@@ -1,5 +1,6 @@
 use std::env;
 use std::io;
+use std::io::BufWriter;
 use std::io::prelude::*;
 use std::fs::File;
 
@@ -33,12 +34,10 @@ fn is_tabstop (linepos: &usize) -> bool {
 
 fn do_file (file: &mut File) {
   let mut inbuf  = [ 0u8; 4096 ];
-  let mut outbuf = [ 0u8; 4096 ];
 
   let output = io::stdout();
   let mut handle = output.lock();
-
-  let mut outpos  = 0;
+  let mut stream = BufWriter::new(&mut handle);
 
   loop {
     let len = file.read(&mut inbuf).unwrap();
@@ -46,24 +45,13 @@ fn do_file (file: &mut File) {
 
     let mut linepos = 0;
 
-    // Flush output buffer...
-    //  * when output buffer full
-    //  * when within 8 of full and a tab is reached, before appending
-    //  * when input is exhausted
-
-    for b in &inbuf[0 .. len+1] {
-      if outpos > 2048 {
-        handle.write(&outbuf[ 0 .. outpos-1 ]).unwrap();
-        outpos = 0;
-      }
-
+    for b in &inbuf[0 .. len] {
       if b == &b'\t' { // literal tab <	>
-        outbuf[outpos] = b' ';
-        outpos += 1;
+        stream.write(&[b' ']).unwrap();
         linepos += 1;
+
         while ! is_tabstop(&linepos) {
-          outbuf[outpos] = b' ';
-          outpos += 1;
+          stream.write(&[b' ']).unwrap();
           linepos += 1;
         }
         continue;
@@ -75,14 +63,9 @@ fn do_file (file: &mut File) {
         linepos += 1;
       }
 
-      outbuf[outpos] = *b;
-      outpos  += 1;
+      stream.write(&[*b]).unwrap();
     }
   }
 
-  if outpos > 0 {
-    handle.write(&outbuf[ 0 .. outpos-1 ]).unwrap();
-  }
-
-  handle.flush().unwrap();
+  stream.flush().unwrap();
 }
