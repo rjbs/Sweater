@@ -47,15 +47,58 @@ fn do_file <T: Read> (reader: &mut T) {
   // just emitting a character, so it's only worth doing if the run is 5 long
   // or better.  (At four, we break even.)
 
-  // let mut lastc;
-  // let mut chunkbuf = Vec::new();
+  let mut lastc = None;
+  let mut runlen = 0;
+  let mut chunkbuf = Vec::new();
 
   for res in reader.bytes() {
     let b = res.unwrap();
 
-    stream.write(&[ 1 ]).unwrap();
-    stream.write(&[ b ]).unwrap();
+    if let Some(n) = lastc {
+      if n == b {
+        runlen = runlen + 1;
+        if runlen == 255 {
+          // Same character 255 times in a row, means it must also be the whole
+          // chunk buffer.
+          chunkbuf.truncate(0);
+
+          stream.write(&[0]).unwrap();
+          stream.write(&[b]).unwrap();
+          stream.write(&[runlen as u8]).unwrap();
+
+          lastc = None;
+          runlen = 0;
+          continue;
+        }
+      } else {
+        if runlen >= 5 {
+          let clen = chunkbuf.len();
+          if clen > runlen {
+            chunkbuf.truncate(clen - runlen as usize);
+            stream.write(&[ clen as u8 - runlen as u8 ]).unwrap();
+            stream.write(&chunkbuf).unwrap();
+          }
+          chunkbuf.truncate(0);
+
+          stream.write(&[ 0, n, runlen as u8]).unwrap();
+        }
+
+        runlen = 1;
+      }
+    }
+
+    if chunkbuf.len() == 255 {
+      stream.write(&[ chunkbuf.len() as u8 ]).unwrap();
+      stream.write(&chunkbuf).unwrap();
+      chunkbuf.truncate(0);
+    }
+
+    chunkbuf.push(b);
+    lastc = Some(b);
   }
+
+  stream.write(&[ chunkbuf.len() as u8 ]).unwrap();
+  stream.write(&chunkbuf).unwrap();
 
   stream.flush().unwrap();
 }
