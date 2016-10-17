@@ -1,4 +1,4 @@
-execs = cp wc detab entab
+execs = cp wc detab entab compress
 
 all: $(execs)
 
