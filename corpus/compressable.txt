@@ -1,0 +1,11 @@
+This is a compressable file.
+============================
+
+There are runs in here that can be compressed.
+
+No  : 4444
+Yes : 55555
+Yes : 999999999
+
+So we should see those get compressed.  It should be a suuuuuuuuper exciting
+example.
