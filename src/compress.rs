@@ -7,7 +7,7 @@ use std::fs::File;
 fn main() {
   let argc = env::args().count();
   if argc > 2 {
-    println!("usage: entab <filename>");
+    println!("usage: compress <filename>");
     std::process::exit(1);
   }
 
