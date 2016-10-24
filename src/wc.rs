@@ -66,16 +66,13 @@ fn do_file (file: &mut Read, label: &String) -> (u32, u32, u32) {
 }
 
 fn do_filename (filename: String) -> (u32, u32, u32) {
-  let openres = File::open(&filename);
-
-  if let Ok(mut file) = openres {
-    let (lines, words, bytes) = do_file(&mut file, &filename);
-
-    return (lines, words, bytes);
-  } else {
-    match openres.err() {
-      Some(errstr) => println!("{}: {}", &filename, errstr),
-      _ => panic!("wtf")
+  match File::open(&filename) {
+    Ok(mut file) => {
+      let (lines, words, bytes) = do_file(&mut file, &filename);
+      return (lines, words, bytes);
+    },
+    Err(errstr) => {
+      println!("{}: {}", &filename, errstr);
     }
   }
 
