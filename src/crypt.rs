@@ -35,8 +35,6 @@ fn do_file <T: Read> (key: String, reader: &mut T) {
   let mut handle = output.lock();
   let mut stream = BufWriter::new(&mut handle);
 
-  println!("{}", key);
-
   for res in reader.bytes() {
     let b = res.unwrap();
     let k = keybytes.next().unwrap();
